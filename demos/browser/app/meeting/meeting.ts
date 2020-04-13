@@ -324,8 +324,10 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
     const buttonMute = document.getElementById('button-microphone');
     buttonMute.addEventListener('mousedown', _e => {
       if (this.toggleButton('button-microphone')) {
+        //Unmute the local attendee’s audio
         this.audioVideo.realtimeUnmuteLocalAudio();
       } else {
+        //Mute the local attendee’s audio
         this.audioVideo.realtimeMuteLocalAudio();
       }
     });
@@ -340,11 +342,13 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
               camera = this.cameraDeviceIds.length ? this.cameraDeviceIds[0] : 'None';
             }
             await this.openVideoInputFromSelection(camera, false);
+            //Start sharing video with others
             this.audioVideo.startLocalVideoTile();
           } catch (err) {
             this.log('no video input device selected');
           }
         } else {
+          //Stop sharing video with others
           this.audioVideo.stopLocalVideoTile();
           this.hideTile(16);
         }
@@ -566,8 +570,12 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
     }
   }
 
+  //Starting point for the demo app
   async initializeMeetingSession(configuration: MeetingSessionConfiguration): Promise<void> {
     let logger: Logger;
+    /* if its a serverless app, logs will be stored in the cloudwatch
+    for local app, the logs are stored locally at the client browser
+     */
     if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
       logger = new ConsoleLogger('SDK', LogLevel.INFO);
     } else {
@@ -580,11 +588,13 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
         LogLevel.INFO
       );
     }
+    //Create a device controller
     const deviceController = new DefaultDeviceController(logger);
     configuration.enableWebAudio = this.enableWebAudio;
+    //Create a meeting session
     this.meetingSession = new DefaultMeetingSession(configuration, logger, deviceController);
     this.audioVideo = this.meetingSession.audioVideo;
-
+    //Register a device-change observer
     this.audioVideo.addDeviceChangeObserver(this);
     this.setupDeviceLabelTrigger();
     await this.populateAllDeviceLists();
@@ -592,6 +602,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
     this.setupCanUnmuteHandler();
     this.setupSubscribeToAttendeeIdPresenceHandler();
     this.setupScreenViewing();
+    //Register an audio-video observer
     this.audioVideo.addObserver(this);
   }
 
@@ -607,6 +618,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
     });
     await this.openAudioInputFromSelection();
     await this.openAudioOutputFromSelection();
+    //Start the meeting session
     this.audioVideo.start();
     await this.meetingSession.screenShare.open();
     await this.meetingSession.screenShareView.open();
@@ -620,6 +632,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
         return this.meetingSession.screenShare.close();
       });
     this.meetingSession.screenShareView.close();
+    //Stop the meeting session
     this.audioVideo.stop();
     this.roster = {};
   }
@@ -628,7 +641,9 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
     const handler = (isMuted: boolean): void => {
       this.log(`muted = ${isMuted}`);
     };
+    //Subscribe to changes in the local attendee’s audio mute state
     this.audioVideo.realtimeSubscribeToMuteAndUnmuteLocalAudio(handler);
+    //Determine if the local attendee’s audio is muted
     const isMuted = this.audioVideo.realtimeIsLocalAudioMuted();
     handler(isMuted);
   }
@@ -689,6 +704,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
         this.updateRoster();
         return;
       }
+      //Subscribe to an attendee’s volume indicator,
       this.audioVideo.realtimeSubscribeToVolumeIndicator(
         attendeeId,
         async (
@@ -719,6 +735,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
         }
       );
     };
+    //Subscribe to the attendee ID presence changes
     this.audioVideo.realtimeSubscribeToAttendeeIdPresence(handler);
     const activeSpeakerHandler = (attendeeIds: string[]): void => {
       for (const attendeeId in this.roster) {
@@ -732,6 +749,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
       }
       this.layoutVideoTiles();
     };
+    //Receive updates when the list of active speakers changes
     this.audioVideo.subscribeToActiveSpeakerDetector(
       new DefaultActiveSpeakerPolicy(),
       activeSpeakerHandler,
@@ -883,8 +901,11 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
   }
 
   async populateAllDeviceLists(): Promise<void> {
+    //Configure the audio input device
     await this.populateAudioInputList();
+    //Configure the video input device
     await this.populateVideoInputList();
+    //Configure the audio output device
     await this.populateAudioOutputList();
   }
 
@@ -1065,6 +1086,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
 
   async authenticate(): Promise<string> {
     let joinInfo = (await this.joinMeeting()).JoinInfo;
+    //Create a meeting session configuration
     await this.initializeMeetingSession(
       new MeetingSessionConfiguration(joinInfo.Meeting, joinInfo.Attendee)
     );
@@ -1109,12 +1131,14 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver 
 
     pauseButtonElement.addEventListener('click', () => {
         if (!tileState.paused) {
+          //Pause video streams to the attendee requesting the pause
           this.audioVideo.pauseVideoTile(tileState.tileId);
         }
     });
 
     resumeButtonElement.addEventListener('click', () => {
       if (tileState.paused) {
+        //Resume video streams to the attendee who requetsed video pause
         this.audioVideo.unpauseVideoTile(tileState.tileId);
       }
     });
