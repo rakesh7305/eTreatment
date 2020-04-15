@@ -317,6 +317,12 @@ export default class DefaultRealtimeController implements RealtimeController {
     });
   }
 
+  realtimeExternalUserIdFromAttendeeId(attendeeId: string): string {
+    if (attendeeId in this.state.attendeeIdToExternalUserId) {
+      return this.state.attendeeIdToExternalUserId[attendeeId];
+    }
+  }
+
   // Error Handling
 
   realtimeSubscribeToFatalError(callback: (error: Error) => void): void {

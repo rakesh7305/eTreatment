@@ -1185,7 +1185,7 @@ export class DemoMeetingApp implements AudioVideoObserver, DeviceChangeObserver,
     // TODO: enforce roster names
     new TimeoutScheduler(2000).start(() => {
       const rosterName = this.roster[tileState.boundAttendeeId]
-        ? this.roster[tileState.boundAttendeeId].name
+        ? this.roster[tileState.boundAttendeeId].name + ' [' + tileState.boundExternalUserId + ']'
         : '';
       if (nameplateElement.innerHTML !== rosterName) {
         nameplateElement.innerHTML = rosterName;

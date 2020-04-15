@@ -1,4 +1,4 @@
-// Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 import * as chai from 'chai';
@@ -261,13 +261,13 @@ describe('VideoAdaptiveSubscribePolicy', () => {
       let tile = tileController.getVideoTile(tileId);
       // @ts-ignore
       const stream: MediaStream = {};
-      tile.bindVideoStream('xy1', false, stream, 0, 0, 1);
+      tile.bindVideoStream('xy1', false, stream, 0, 0, 1, 'fake-external-id');
       tile.stateRef().active = true;
 
       const tileId2 = tileController.addVideoTile().id();
       tileController.bindVideoElement(tileId2, MediaClientLargeNoOpHTMLVideoElement.create());
       tile = tileController.getVideoTile(tileId2);
-      tile.bindVideoStream('xy2', false, stream, 0, 0, 1);
+      tile.bindVideoStream('xy2', false, stream, 0, 0, 1, 'fake-external-id');
       tile.stateRef().active = true;
 
       const index = new DefaultVideoStreamIndex(audioVideoController.logger);

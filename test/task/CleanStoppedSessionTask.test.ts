@@ -178,7 +178,8 @@ describe('CleanStoppedSessionTask', () => {
             context.activeVideoInput,
             640,
             480,
-            0
+            0,
+            'fake-external-id'
           );
           return this.testLocalTile.id();
         }

@@ -9,6 +9,7 @@ import NoOpMediaStreamBroker from '../../src/mediastreambroker/NoOpMediaStreamBr
 import MeetingSessionConfiguration from '../../src/meetingsession/MeetingSessionConfiguration';
 import MeetingSessionCredentials from '../../src/meetingsession/MeetingSessionCredentials';
 import MeetingSessionURLs from '../../src/meetingsession/MeetingSessionURLs';
+import DefaultRealtimeController from '../../src/realtimecontroller/DefaultRealtimeController';
 import ReceiveVideoInputTask from '../../src/task/ReceiveVideoInputTask';
 import DefaultVideoCaptureAndEncodeParameters from '../../src/videocaptureandencodeparameter/DefaultVideoCaptureAndEncodeParameter';
 import NoVideoUplinkBandwidthPolicy from '../../src/videouplinkbandwidthpolicy/NoVideoUplinkBandwidthPolicy';
@@ -67,6 +68,7 @@ describe('ReceiveVideoInputTask', () => {
       false
     );
     context.videoUplinkBandwidthPolicy = new NoVideoUplinkBandwidthPolicy();
+    context.realtimeController = new DefaultRealtimeController();
   });
 
   afterEach(() => {

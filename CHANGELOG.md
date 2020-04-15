@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.3.0] - 2020-04-17
+## [Unreleased]
 
 ### Added
 - Enabled the use of send-side bandwidth estimation
@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add post publish script
 - Add feature flag to enable WebRTC Unified Plan for Chromium-based browsers
 - Add link to Amazon Chime SDK Security in README
+- Expose ExternalUserID on videoTileDidUpdate
 
 ### Changed
 - Prevent prebuild from increase patch number when publishing to NPM
@@ -34,7 +35,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Temporarily only run test in Chrome for Travis integration tests
 - Allow content share frame rate to be configurable
 - Move demo guides to demo folders
-- Fix the default video resolution comment in DeviceController
 
 ### Removed
 - Remove unimplemented callbacks remoteDidMuteAudio and remoteDidUnmuteAudio on AudioVideoObserver
@@ -48,11 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix markdown formatting with backticks in API overview
 - Fix an issue that a dev dependnecy @types/dom-mediacapture-record is not getting installed
 - Fix typo in README.md file
-- Ensure that attendee presence leave and join are ordered correctly
-- Fix video element issue in Iphone
-- Fix post publish script to also include meeting v1
-- Use build:publish for publish script
-- Fix Travis deploy failure
 
 ## [1.2.1] - 2020-03-20
 

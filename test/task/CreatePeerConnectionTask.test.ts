@@ -1,9 +1,11 @@
 // Copyright 2019-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+import * as assert from 'assert';
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 
+import { DefaultRealtimeController } from '../../src';
 import DefaultAudioMixController from '../../src/audiomixcontroller/DefaultAudioMixController';
 import AudioVideoControllerState from '../../src/audiovideocontroller/AudioVideoControllerState';
 import NoOpAudioVideoController from '../../src/audiovideocontroller/NoOpAudioVideoController';
@@ -382,6 +384,120 @@ describe('CreatePeerConnectionTask', () => {
           track.stop();
         });
         await context.peer.setRemoteDescription(videoRemoteDescription);
+        await new Promise(resolve =>
+          new TimeoutScheduler(domMockBehavior.asyncWaitMs + 10).start(resolve)
+        );
+      });
+
+      it('has externalUserId for an attendee', async () => {
+        const attendeeIdForTrack = 'attendee-id';
+        context.realtimeController = new DefaultRealtimeController();
+        context.realtimeController.realtimeSetAttendeeIdPresence(attendeeIdForTrack, true, 'foo');
+
+        class TestVideoStreamIndex extends DefaultVideoStreamIndex {
+          attendeeIdForTrack(_trackId: string): string {
+            return attendeeIdForTrack;
+          }
+        }
+
+        context.videoStreamIndex = new TestVideoStreamIndex(logger);
+
+        await task.run();
+        context.peer.addEventListener('track', (event: RTCTrackEvent) => {
+          const track = event.track;
+          track.stop();
+        });
+        await context.peer.setRemoteDescription(videoRemoteDescription);
+
+        await new Promise(resolve =>
+          new TimeoutScheduler(domMockBehavior.asyncWaitMs + 10).start(resolve)
+        );
+      });
+
+      it('has no externalUserId for an attendee', async () => {
+        const attendeeIdForTrack = 'attendee-id';
+        context.realtimeController = new DefaultRealtimeController();
+        context.realtimeController.realtimeSetAttendeeIdPresence(attendeeIdForTrack, true, null);
+
+        class TestVideoStreamIndex extends DefaultVideoStreamIndex {
+          attendeeIdForTrack(_trackId: string): string {
+            return attendeeIdForTrack;
+          }
+        }
+
+        context.videoStreamIndex = new TestVideoStreamIndex(logger);
+
+        await task.run();
+        context.peer.addEventListener('track', (event: RTCTrackEvent) => {
+          const track = event.track;
+          const spyRealtimeSubscribeToAttendeeIdPresence = sinon.spy(
+            context.realtimeController,
+            'realtimeSubscribeToAttendeeIdPresence'
+          );
+          const arg1 = (
+            _attendeeId: string,
+            _present: boolean,
+            _externalUserId: string
+          ): void => {};
+          context.realtimeController.realtimeSubscribeToAttendeeIdPresence(arg1);
+          assert(spyRealtimeSubscribeToAttendeeIdPresence.calledOnceWith(arg1));
+          context.realtimeController.realtimeSetAttendeeIdPresence(
+            'new-attendee-id',
+            true,
+            'extId'
+          );
+          track.stop();
+          context.realtimeController.realtimeSetAttendeeIdPresence(
+            attendeeIdForTrack,
+            true,
+            'extId'
+          );
+        });
+        await context.peer.setRemoteDescription(videoRemoteDescription);
+
+        await new Promise(resolve =>
+          new TimeoutScheduler(domMockBehavior.asyncWaitMs + 10).start(resolve)
+        );
+      });
+
+      it('has no externalUserId for an attendee and call removeObserver', async () => {
+        const attendeeIdForTrack = 'attendee-id';
+        context.realtimeController = new DefaultRealtimeController();
+        context.realtimeController.realtimeSetAttendeeIdPresence(attendeeIdForTrack, true, null);
+
+        class TestVideoStreamIndex extends DefaultVideoStreamIndex {
+          attendeeIdForTrack(_trackId: string): string {
+            return attendeeIdForTrack;
+          }
+        }
+
+        context.videoStreamIndex = new TestVideoStreamIndex(logger);
+
+        await task.run();
+        context.peer.addEventListener('track', (event: RTCTrackEvent) => {
+          const track = event.track;
+          const spyRealtimeSubscribeToAttendeeIdPresence = sinon.spy(
+            context.realtimeController,
+            'realtimeSubscribeToAttendeeIdPresence'
+          );
+          const arg1 = (
+            _attendeeId: string,
+            _present: boolean,
+            _externalUserId: string
+          ): void => {};
+          context.realtimeController.realtimeSubscribeToAttendeeIdPresence(arg1);
+          assert(spyRealtimeSubscribeToAttendeeIdPresence.calledOnceWith(arg1));
+          context.realtimeController.realtimeSetAttendeeIdPresence('new-attendee-id', true, null);
+          track.stop();
+          context.removableObservers[0].removeObserver();
+          context.realtimeController.realtimeSetAttendeeIdPresence(
+            attendeeIdForTrack,
+            true,
+            'extId'
+          );
+        });
+        await context.peer.setRemoteDescription(videoRemoteDescription);
+
         await new Promise(resolve =>
           new TimeoutScheduler(domMockBehavior.asyncWaitMs + 10).start(resolve)
         );

@@ -80,7 +80,7 @@ describe('DefaultVideoTile', () => {
       const videoElement = videoElementFactory.create();
       tile.bindVideoElement(videoElement);
 
-      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1);
+      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1, 'external-fake-id');
 
       expect(tile.state().tileId).to.equal(tileId);
       expect(tile.state().boundVideoElement.srcObject).to.equal(mockVideoStream);
@@ -127,6 +127,7 @@ describe('DefaultVideoTile', () => {
       const videoStreamContentWidth = 1;
       const videoStreamContentHeight = 1;
       const streamId = 1;
+      const boundExternalUserId = 'externalUserId';
 
       tile.bindVideoStream(
         boundAttendeeId,
@@ -134,7 +135,8 @@ describe('DefaultVideoTile', () => {
         mockVideoStream,
         videoStreamContentWidth,
         videoStreamContentHeight,
-        streamId
+        streamId,
+        boundExternalUserId
       );
 
       expect(tile.state().boundAttendeeId).to.equal(boundAttendeeId);
@@ -156,6 +158,7 @@ describe('DefaultVideoTile', () => {
       const videoStreamContentWidth = 1;
       const videoStreamContentHeight = 1;
       const streamId = 1;
+      const boundexternalUserId = 'externalId#content';
 
       tile.bindVideoStream(
         boundAttendeeId,
@@ -163,7 +166,8 @@ describe('DefaultVideoTile', () => {
         mockVideoStream,
         videoStreamContentWidth,
         videoStreamContentHeight,
-        streamId
+        streamId,
+        boundexternalUserId
       );
 
       expect(tile.state().boundAttendeeId).to.equal(boundAttendeeId);
@@ -179,8 +183,8 @@ describe('DefaultVideoTile', () => {
 
     it('unbinds a video stream', () => {
       tile = new DefaultVideoTile(tileId, true, tileController, monitor);
-      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1);
-      tile.bindVideoStream(null, true, null, null, null, null);
+      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1, 'external-user-id');
+      tile.bindVideoStream(null, true, null, null, null, null, null);
 
       expect(tile.state().boundAttendeeId).to.equal(null);
       expect(tile.state().localTile).to.equal(true);
@@ -199,15 +203,15 @@ describe('DefaultVideoTile', () => {
       const videoElement = videoElementFactory.create();
       tile.bindVideoElement(videoElement);
 
-      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1);
+      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1, 'external-user-id');
       expect(videoElement.srcObject).to.equal(mockVideoStream);
 
-      tile.bindVideoStream('attendee', true, mockVideoStream, 2, 2, 1);
+      tile.bindVideoStream('attendee', true, mockVideoStream, 2, 2, 1, 'external-user-id');
       expect(videoElement.srcObject).to.equal(mockVideoStream);
 
       // @ts-ignore
       const mockMediaStream2: MediaStream = new MediaStream();
-      tile.bindVideoStream('attendee', true, mockMediaStream2, 2, 2, 1);
+      tile.bindVideoStream('attendee', true, mockMediaStream2, 2, 2, 1, 'external-user-id');
       expect(videoElement.srcObject).to.equal(mockMediaStream2);
     });
   });
@@ -221,7 +225,7 @@ describe('DefaultVideoTile', () => {
       const setAttributeSpy = sinon.spy(videoElement, 'setAttribute');
 
       tile.bindVideoElement(videoElement);
-      tile.bindVideoStream('attendee', false, mockVideoStream, 1, 1, 1);
+      tile.bindVideoStream('attendee', false, mockVideoStream, 1, 1, 1, 'external-user-id');
 
       expect(tile.state().boundVideoElement).to.equal(videoElement);
       expect(tile.state().videoElementCSSWidthPixels).to.equal(videoElement.clientWidth);
@@ -271,7 +275,7 @@ describe('DefaultVideoTile', () => {
       const setAttributeSpy = sinon.spy(videoElement, 'setAttribute');
 
       tile.bindVideoElement(videoElement);
-      tile.bindVideoStream('attendee', false, mockVideoStream, 1, 1, 1);
+      tile.bindVideoStream('attendee', false, mockVideoStream, 1, 1, 1, 'external-user-id');
 
       expect(removeAttributeSpy.calledWith('controls')).to.be.true;
       expect(setAttributeSpy.callCount).to.equal(0);
@@ -285,7 +289,7 @@ describe('DefaultVideoTile', () => {
       // @ts-ignore
       videoElement.disableRemotePlayback = false;
       tile.bindVideoElement(videoElement);
-      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1);
+      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1, 'external-user-id');
       // @ts-ignore
       expect(videoElement.disablePictureInPicture).to.be.true;
       // @ts-ignore
@@ -398,7 +402,7 @@ describe('DefaultVideoTile', () => {
 
       const videoElement = videoElementFactory.create();
       tile.bindVideoElement(videoElement);
-      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1);
+      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1, 'external-user-id');
 
       const image = tile.capture();
       expect(image.width).to.equal(videoElement.videoWidth);
@@ -415,7 +419,7 @@ describe('DefaultVideoTile', () => {
       delete videoElement.videoHeight;
 
       tile.bindVideoElement(videoElement);
-      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1);
+      tile.bindVideoStream('attendee', true, mockVideoStream, 1, 1, 1, 'external-user-id');
 
       const image = tile.capture();
       expect(image.width).to.equal(videoElement.width);
