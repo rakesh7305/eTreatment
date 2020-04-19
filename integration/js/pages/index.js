@@ -1,1 +1,0 @@
-exports.AppPage = require('./AppPage');
