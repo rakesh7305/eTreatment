@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- <link rel="shortcut icon" href="data:image/x-icon;," type="image/x-icon"> -->
+  <title>eTreatment</title>
+  <!-- Using the jquery CDN -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <!-- Using the jquery dataTables CSS CDN -->
+  <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.15/css/jquery.dataTables.css">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+
+  <!-- Using the jquery dataTables API CDN -->
+  <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.15/js/jquery.dataTables.js"></script>
+  <script>
+    function openFullscreen() {
+      var elem = document.getElementById("VCPanel");
+      //alert("Hi");
+
+      if (elem.webkitRequestFullscreen) {
+        /* Chrome, Safari & Opera */
+        //alert("webkitRequestFullscreen");
+        elem.webkitRequestFullscreen();
+      } else if (elem.requestFullscreen) {
+        //alert("requestFullscreen");
+        elem.requestFullscreen();
+      } else if (elem.mozRequestFullScreen) {
+        /* Firefox */
+        //alert("mozRequestFullScreen");
+        elem.mozRequestFullScreen();
+      } else if (elem.webkitRequestFullscreen) {
+        /* Chrome, Safari & Opera */
+        //alert("webkitRequestFullscreen");
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        /* IE/Edge */
+        //alert("msRequestFullscreen");
+        elem.msRequestFullscreen();
+      }
+    }
+  </script>
+  <script>
+  </script>
+
+
+</head>
+
+<body>
+
+  <!-- login ---------------------- -->
+
+  <div class="container-fluid pt-5 mx-auto">
+
+    <div class="container-fluid">
+      <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-primary py-0">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="#">eTreatment</a>
+
+        <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+          <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+            <li class="nav-item active">
+              <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Services</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Contact</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#">Login</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <div class="jumbotron fixed-top">
+      </div>
+    </div>
+
+    <div id="flow-login" class="flow text-center">
+
+      <div class="row pt-5"></div>
+      <div class="row pt-5"></div>
+
+      <div class="container pt-5">
+        <div class="row justify-content-sm-center">
+          <div class="col-sm-10 col-md-6">
+            <div class="card border-info">
+              <div class="card-header">Login</div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4 text-center">
+                    <img src="http://icons.iconarchive.com/icons/jonas-rask/pry-system/128/Stethoscope-icon.png">
+                    <h4 class="text-center">eTreatment</h4>
+                  </div>
+                  <div class="col-md-8">
+                    <form class="form-signin" id="form-login">
+                      <input type="text" id="userId" class="form-control mb-2" placeholder="User Id" required autofocus>
+                      <input type="password" id="passwd" class="form-control mb-2" placeholder="Password" required>
+                      <label for="location" class="sr-only">Location</label>
+                      <select id="location" class="custom-select" style="width:100%">
+                        <option value="New Jersey - Center" selected>New Jersey</option>
+                        <option value="New York - Center">New York</option>
+                        <option value="California - Center">California</option>
+                        <option value="Texas - Center">Texas</option>
+                      </select>
+
+                      <button class="btn btn-lg btn-primary btn-block mt-2" type="submit">Log in</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!--Login End ---------------------- -->
+
+    <!-- Authenticate ---------------------- -->
+
+
+    <!-- center-info ---------------------- -->
+
+    <div id="flow-center-info" class="flow">
+      <div id="header"></div>
+      <div class="container-fluid pt-2">
+        <h3 id="center-info" class="text-left">Center Location</h3>
+        <div class="row">
+          <div class="container px-0 col-lg-5 col-md-5 col-sm-5 col-xs-5">
+            <div class="container">
+              <div class="v-tab">
+                <ul class="nav nav-pills" id="videoTabConfig">
+                  <li class="nav-item">
+                    <a href="#vConfig" class="nav-link active" data-toggle="tab">Config</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="#vCam" class="nav-link" data-toggle="tab">Camera</a>
+                  </li>
+                </ul>
+                <div class="tab-content">
+                  <div class="tab-pane fade show active right-panel" id="vConfig">
+                    <div id="flow-devices" class="2flow">
+                      <div class="container">
+                        <form id="form-devices">
+                          <h1 class="h4 mb-3 font-weight-normal text-center">Select Devices</h1>
+                          <div class="row mt-3">
+                            <div class="col-8">
+                              <label for="audio-input">Microphone</label>
+                              <select id="audio-input" class="custom-select" style="width:308px"></select>
+                            </div>
+                            <div class="text-center col-4">
+                              <label>Preview</label>
+                              <div class="w-100 progress" style="margin-top:0.75rem">
+                                <div id="audio-preview" class="progress-bar bg-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row mt-3">
+                            <div class="col-8">
+                              <label for="video-input">Camera</label>
+                              <select id="video-input" class="custom-select" style="width:308px"></select>
+                            </div>
+                            <div class="col-4 text-center" style="width:137px;height:82px">
+                              <video id="video-preview" class="w-100 h-100" style="max-width:137px;max-height:82px;border-radius:8px"></video>
+                            </div>
+                          </div>
+                          <div class="row mt-3">
+                            <div class="col-8">
+                              <select id="video-input-quality" class="custom-select" style="width:308px">
+                                <option value="360p">360p (nHD) @ 15 fps (600 Kbps max)</option>
+                                <option value="540p" selected>540p (qHD) @ 15 fps (1.4 Mbps max)</option>
+                                <option value="720p">720p (HD) @ 15 fps (1.4 Mbps max)</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div class="row mt-3">
+                            <div class="col-8">
+                              <label for="audio-output">Speaker</label>
+                              <select id="audio-output" class="custom-select" style="width:308px"></select>
+                            </div>
+                            <div class="col-4">
+                              <button id="button-test-sound" class="btn btn-outline-secondary btn-block h-50" style="margin-top:2rem">Test</button>
+                            </div>
+                          </div>
+                          <div class="row mt-3">
+                            <div class="col-lg">
+                              <button id="joinButton" class="btn btn-md btn-primary btn-block" type="submit">Start Meeting</button>
+                            </div>
+                          </div>
+                        </form>
+                        <div id="progress-join" class="w-100 progress progress-hidden">
+                          <div class="w-100 progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  <div class="tab-pane fade right-panel disabled" id="vCam">
+                    <!-- vCam -->
+                    <div id="vCamD" class="border-info">
+                      <div id="flow-meeting" class="2flow meeting-pos">
+                        <audio id="meeting-audio" style="display:none"></audio>
+                        <div class="container-fluid h-100">
+                          <div  id="VCPanel1" class="row pt-1">
+
+                            <div class="btn-toolbar" role="toolbar" aria-label="AV Toolbar">
+
+                              <div class="btn-group-sm ml-1" role="group" aria-label="Toggle microphone">
+                                <button id="button-microphone" type="button" class="btn btn-success" title="Toggle microphone">
+                                  ${require('../../node_modules/open-iconic/svg/microphone.svg').default}
+                                </button>
+                                <div class="btn-group btn-group-sm" role="group">
+                                  <button id="button-microphone-drop" type="button" class="btn btn-success dropdown-toggle button-pos" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Select microphone"></button>
+                                  <div id="dropdown-menu-microphone" class="dropdown-menu" aria-labelledby="button-microphone-drop" x-placement="bottom-start">
+                                    <!-- style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;"> -->
+                                    <a class="dropdown-item" href="#">Default microphone</a>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="btn-group-sm ml-1" role="group" aria-label="Toggle camera">
+                                <button id="button-camera" type="button" class="btn btn-success" title="Toggle camera">
+                                  ${require('../../node_modules/open-iconic/svg/video.svg').default}
+                                </button>
+                                <div class="btn-group btn-group-sm" role="group">
+                                  <button id="button-camera-drop" type="button" class="btn btn-success dropdown-toggle button-pos" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Select camera"></button>
+                                  <div id="dropdown-menu-camera" class="dropdown-menu" aria-labelledby="button-camera-drop" x-placement="bottom-start">
+                                    <!-- style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;"> -->
+                                    <a class="dropdown-item" href="#">Default camera</a>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="btn-group-sm ml-1" role="group" aria-label="Toggle screen share">
+
+                                <button id="button-screen-share" type="button" class="btn btn-outline-secondary" title="Toggle screen share">
+                                  ${require('../../node_modules/open-iconic/svg/monitor.svg').default}
+                                </button>
+                                <button id="button-pause-screen-share" type="button" class="btn btn-outline-secondary" title="Pause/Unpause screen share">
+                                  ${require('../../node_modules/open-iconic/svg/media-pause.svg').default}
+                                </button>
+                                <button id="button-screen-view" type="button" class="btn btn-outline-secondary" title="Toggle screen share view">
+                                  ${require('../../node_modules/open-iconic/svg/browser.svg').default}
+                                </button>
+                              </div>
+
+
+                              <div class="btn-group-sm ml-1" role="group" aria-label="Toggle speaker">
+                                <button id="button-speaker" type="button" class="btn btn-success" title="Toggle speaker">
+                                  ${require('../../node_modules/open-iconic/svg/volume-low.svg').default}
+                                </button>
+                                <div class="btn-group btn-group-sm" role="group">
+                                  <button id="button-speaker-drop" type="button" class="btn btn-success dropdown-toggle button-pos" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Select speaker"></button>
+                                  <div id="dropdown-menu-speaker" class="dropdown-menu" aria-labelledby="button-speaker-drop" x-placement="bottom-start">
+                                    <!-- style="position: absolute; transform: translate3d(0px, 38px, 0px); top: 0px; left: 0px; will-change: transform;"> -->
+                                    <a class="dropdown-item" href="#">Default speaker</a>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div class="btn-group-sm ml-1" role="group" aria-label="Toggle meeting">
+
+                                <button id="button-meeting-leave" type="button" class="btn btn-outline-success" title="Leave meeting">
+                                  ${require('../../node_modules/open-iconic/svg/account-logout.svg').default}
+                                </button>
+                                <button id="button-meeting-end" type="button" class="btn btn-outline-danger" title="End meeting">
+                                  ${require('../../node_modules/open-iconic/svg/power-standby.svg').default}
+                                </button>
+                                <!-- <button id="maxCam" type="button" onclick="openFullscreen();" class="btn btn-success" title="maxCam">
+                                  M
+                                </button> -->
+                                <button id="maxCam" type="button" onclick="openFullscreen();" class="btn btn-success" title="maxCam">
+                                  ${require('../../node_modules/open-iconic/svg/resize-both.svg').default}
+                                </button>
+                              </div>
+
+
+                            </div>  <!-- AVToolbar -->
+
+
+                          </div> <!-- vPanel1 -->
+
+                          <div id="VCPanel" class="row h-100 pt-4">
+                            <div class="col-sm-4">
+                              <div class="bs-component">
+                                <ul id="roster" class="list-group"></ul>
+                              </div>
+                            </div>
+                            <div class="col p-0">
+                              <div id="tile-area" class="w-100 h-100">
+                                <div id="tile-0" style="display"><video id="video-0" class="w-100 h-100"></video>
+                                  <div id="nameplate-0"></div>
+                                </div>
+                                <div id="tile-1" style="display:none"><video id="video-1" class="w-100 h-100"></video>
+                                  <div id="nameplate-1"></div>
+                                </div>
+                                <div id="tile-2" style="display:none"><video id="video-2" class="w-100 h-100"></video>
+                                  <div id="nameplate-2"></div>
+                                </div>
+                                <div id="tile-3" style="display:none"><video id="video-3" class="w-100 h-100"></video>
+                                  <div id="nameplate-3"></div>
+                                </div>
+                                <div id="tile-4" style="display:none"><video id="video-4" class="w-100 h-100"></video>
+                                  <div id="nameplate-4"></div>
+                                </div>
+                                <div id="tile-5" style="display:none"><video id="video-5" class="w-100 h-100"></video>
+                                  <div id="nameplate-5"></div>
+                                </div>
+                                <div id="tile-6" style="display:none"><video id="video-6" class="w-100 h-100"></video>
+                                  <div id="nameplate-6"></div>
+                                </div>
+                                <div id="tile-7" style="display:none"><video id="video-7" class="w-100 h-100"></video>
+                                  <div id="nameplate-7"></div>
+                                </div>
+                                <div id="tile-8" style="display:none"><video id="video-8" class="w-100 h-100"></video>
+                                  <div id="nameplate-8"></div>
+                                </div>
+                                <div id="tile-9" style="display:none"><video id="video-9" class="w-100 h-100"></video>
+                                  <div id="nameplate-9"></div>
+                                </div>
+                                <div id="tile-10" style="display:none"><video id="video-10" class="w-100 h-100"></video>
+                                  <div id="nameplate-10"></div>
+                                </div>
+                                <div id="tile-11" style="display:none"><video id="video-11" class="w-100 h-100"></video>
+                                  <div id="nameplate-11"></div>
+                                </div>
+                                <div id="tile-12" style="display:none"><video id="video-12" class="w-100 h-100"></video>
+                                  <div id="nameplate-12"></div>
+                                </div>
+                                <div id="tile-13" style="display:none"><video id="video-13" class="w-100 h-100"></video>
+                                  <div id="nameplate-13"></div>
+                                </div>
+                                <div id="tile-14" style="display:none"><video id="video-14" class="w-100 h-100"></video>
+                                  <div id="nameplate-14"></div>
+                                </div>
+                                <div id="tile-15" style="display:none"><video id="video-15" class="w-100 h-100"></video>
+                                  <div id="nameplate-15"></div>
+                                </div>
+                                <div id="tile-16" style="display:none"><video id="video-16" class="w-100 h-100"></video>
+                                  <div id="nameplate-16"></div>
+                                </div>
+                                <div id="tile-17" class="screenview unselectable" style="resize:both;display:none">
+                                  <div id="nameplate-17" style="display:none">No one is sharing screen</div>
+                                </div>
+                              </div>
+                            </div>
+                          </div> <!-- vPanel -->
+
+                        </div>
+                      </div>
+
+
+                    </div>
+                  <!-- vCam -->
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+          <div id="PatientInfo" class="container px-0 col-lg-7 col-md-7 col-sm-7 col-xs-7">
+
+            <ul class="nav nav-pills" id="patientTabList">
+              <li class="nav-item">
+                <a href="#pList" class="nav-link active" data-toggle="tab">Patient List</a>
+              </li>
+              <li class="nav-item">
+                <a href="#pDetails" class="nav-link" data-toggle="tab">Patient Details</a>
+              </li>
+              <li class="nav-item">
+                <a href="#pDetails2" class="nav-link" data-toggle="tab">Patient Details2</a>
+              </li>
+              <li class="nav-item">
+                <a href="#messages" class="nav-link" data-toggle="tab">Messages</a>
+              </li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane fade show active right-panel" id="pList">
+                <table id="bs-example" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+                  <thead>
+                    <tr>
+                      <th class="th-sm">ID
+
+                      </th>
+                      <th class="th-sm">Patient Name
+
+                      </th>
+                      <th class="th-sm">Date Of Birth
+
+                      </th>
+                      <th class="th-sm">Date Of Service
+
+                      </th>
+                      <th class="th-sm">Facility
+
+                      </th>
+                      <th class="th-sm">
+
+                      </th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+              <div class="tab-pane fade right-panel" id="pDetails">
+                <h4 id="name-plate" text-align="left" class="mt-2">Name</h4>
+                <div id="pDetailsD" class="border-info">
+                  <div id="pDetailsF" class="form-scroll">
+                    <div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade right-panel" id="pDetails2">
+                <h4 id="name-plate2" text-align="left" class="mt-2">Name</h4>
+                <div id="pDetailsD2" class="border-info">
+                  <div id="pDetailsF2" class="form-scroll">
+                    <div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane fade right-panel" id="messages">
+                <h4 class="mt-2">Messages</h4>
+                <p>Add messages </p>
+              </div>
+            </div>
+
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- ---------------------- -->
+
+</body>
+
+</html>
