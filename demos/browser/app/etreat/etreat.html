@@ -191,10 +191,16 @@
                               <button id="button-test-sound" class="btn btn-outline-secondary btn-block h-50" style="margin-top:2rem">Test</button>
                             </div>
                           </div>
-                          <div class="row mt-3">
+                          <!-- <div class="row mt-3">
                             <div class="col-lg">
                               <button id="joinButton" class="btn btn-md btn-primary btn-block" type="submit">Start Meeting</button>
                             </div>
+                          </div> -->
+                          <div class="row mt-4">
+                            <div class="col-2"> </div>
+                            <button id="checkDeviceBtn" class="mr-2 col-4 btn btn-md btn-primary" type="submit">Check Device</button>
+                            <button id="joinButton" class="ml-2 col-4 btn btn-md btn-primary" type="submit">Start Meeting</button>
+                            <div class="col-2"> </div>
                           </div>
                         </form>
                         <div id="progress-join" class="w-100 progress progress-hidden">
@@ -210,7 +216,7 @@
                       <div id="flow-meeting" class="2flow meeting-pos">
                         <audio id="meeting-audio" style="display:none"></audio>
                         <div class="container-fluid h-100">
-                          <div  id="VCPanel1" class="row pt-1">
+                          <div id="VCPanel1" class="row pt-1">
 
                             <div class="btn-toolbar" role="toolbar" aria-label="AV Toolbar">
 
@@ -284,7 +290,7 @@
                               </div>
 
 
-                            </div>  <!-- AVToolbar -->
+                            </div> <!-- AVToolbar -->
 
 
                           </div> <!-- vPanel1 -->
@@ -360,7 +366,7 @@
 
 
                     </div>
-                  <!-- vCam -->
+                    <!-- vCam -->
                   </div>
 
                 </div>
@@ -410,6 +416,11 @@
                     </tr>
                   </thead>
                 </table>
+                <div class="row mt-2">
+                  <div class="col-5"> </div>
+                  <button id="refreshListBtn" class="mr-2 col-2 btn btn-md btn-primary" type="submit">Refresh</button>
+                  <div class="col-5"> </div>
+                </div>
               </div>
               <div class="tab-pane fade right-panel" id="pDetails">
                 <h4 id="name-plate" text-align="left" class="mt-2">Name</h4>

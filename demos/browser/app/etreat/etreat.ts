@@ -195,15 +195,15 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
       new AsyncScheduler().start(async () => {
         try {
           this.authenticateUser();
-          var header_d = this.importHeaderHtml();
-          document.getElementById('header').innerHTML = header_d;
+          //var header_d = this.importHeaderHtml();
+          //document.getElementById('header').innerHTML = header_d;
 
           this.switchToFlow('flow-center-info');
           document.getElementById('center-info').innerHTML = this.centerName;
           //this.initParameters();
-          this.loadPatientList();
-          this.setMeetingInfo();
-          this.startAudioPreview();
+          this.loadPatientList_db();
+          //this.setMeetingInfo();
+          //this.startAudioPreview();
 
 
         } catch (error) {
@@ -352,7 +352,8 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
       new TestSound(audioOutput.value);
     });
 
-    document.getElementById('form-devices').addEventListener('submit', e => {
+    //document.getElementById('form-devices').addEventListener('submit', e => {
+    document.getElementById('joinButton').addEventListener('click', e => {
       e.preventDefault();
       new AsyncScheduler().start(async () => {
         try {
@@ -372,6 +373,39 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
           document.getElementById('failed-join-error').innerHTML = `Error: ${error.message}`;
         }
       });
+    });
+    document.getElementById('checkDeviceBtn').addEventListener('click', e => {
+      e.preventDefault();
+      this.setMeetingInfo();
+      this.startAudioPreview();
+      (<HTMLInputElement>document.getElementById('checkDeviceBtn')).disabled = true;
+
+    });
+
+    document.getElementById('refreshListBtn').addEventListener('click', e => {
+      e.preventDefault();
+      //$("#bs-example").dataTable().fnDestroy();
+
+      var patient_list: any = null;
+
+      var table = $('#bs-example').DataTable();
+      //table.clear().rows.add(patient_list).draw();;
+      table.clear().draw();;
+
+      this.getAllPatients()
+        .then((json) => {
+          console.log(json);
+          patient_list = json;
+
+
+          //console.log("list from server 1= " + patient_list);
+
+
+          table.rows.add(patient_list).draw();;
+          this.setPatientListDetailBtns(patient_list);
+          //this.loadPatientList_db();
+
+        })
     });
 
     const buttonMute = document.getElementById('button-microphone');
@@ -592,43 +626,7 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
     // xhr.send();
 
   }
-  importHeaderHtml(): string {
 
-    var hdr: string = `
-       <div class="container-fluid">
-         <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-primary py-0">
-           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-             <span class="navbar-toggler-icon"></span>
-           </button>
-           <a class="navbar-brand" href="#">eTreatment</a>
-
-           <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-             <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-               <li class="nav-item active">
-                 <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-               </li>
-               <li class="nav-item">
-                 <a class="nav-link" href="#">Services</a>
-               </li>
-               <li class="nav-item">
-                 <a class="nav-link" href="#">About</a>
-               </li>
-               <li class="nav-item">
-                 <a class="nav-link" href="#">Contact</a>
-               </li>
-               <li class="nav-item">
-                 <a class="nav-link" href="#">Login</a>
-               </li>
-             </ul>
-           </div>
-         </nav>
-         <div class="jumbotron fixed-top">
-         </div>
-       </div>
-       `
-    return hdr;
-
-  }
 
   setMeetingInfo(): void {
     new AsyncScheduler().start(
@@ -1540,36 +1538,179 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
     this.log('sending video is not available');
   }
 
+  async loadPatientList_db(): Promise<void> {
+
+    var patient_list: any = null;
+
+    this.getAllPatients()
+      .then((json) => {
+        console.log(json);
+        patient_list = json;
+
+        console.log("list from server 1= " + patient_list);
+
+        $(document).ready(() => {
+
+          $('#bs-example').DataTable({
+            "data": patient_list,
+            "pageLength": 10,
+            "columns": [
+              { "data": "ID" },
+              { "data": "Patient Name" },
+              { "data": "Date of Birth" },
+              { "data": "Date of Service" },
+              { "data": "Facility" },
+              {
+                "data": function(ID: any) {
+                  // return "<a href=Test</a>";
+                  return "<button type=\"button\" class=\"btn btn-primary btn-sm dt-edit\" style=\"margin-right:16px; fontSize=\"11px\";\"> <span class=\"fas fa-edit\" aria-hidden=\"true\"></span>";
+                }
+              }
+            ]
+          });
+
+          this.setPatientListDetailBtns(patient_list);
+        }); //document ready
+
+      }); //getAllPatient then
+  }
+
+  setPatientListDetailBtns(patient_list: any): void {
+    alert("in setPatientList Buttons");
+    $('.dt-edit').each(function() {
+      $(this).on('click', function(evt) {
+
+        var dtRow = $(this).parents('tr');
+
+
+        var field0 = dtRow.children()[0].innerText;
+        var field1 = dtRow.children()[1].innerText;
+        var field2 = dtRow.children()[2].innerText;
+        var field3 = dtRow.children()[3].innerText;
+        var field4 = dtRow.children()[4].innerText;
+
+        document.getElementById('name-plate').innerHTML = field1;
+
+        var field5: string = '';
+        var field6: string = '';
+        var field7: string = '';
+        var field8: string = '';
+        var field9: string = '';
+        var field10: string = '';
+        var field11: string = '';
+        var field12: string = '';
+        var field13: string = '';
+
+        for (var i = 0; i < patient_list.length; i++) {
+          if (patient_list[i].ID == Number(field0)) {
+            field5 = patient_list[i]["Chief Complaint"];
+            field6 = patient_list[i]["HPI"];
+            field7 = patient_list[i]["Interval History"];
+            field8 = patient_list[i]["Review Of Systems"];
+            field9 = patient_list[i]["Past Medical History"];
+            field10 = patient_list[i]["Medications"];
+            field11 = patient_list[i]["Physical Examination"];
+            field12 = patient_list[i]["Assessment"];
+            field13 = patient_list[i]["Plan"];
+          }
+
+        };
+
+
+        var pDetailsFbody: any = $("#pDetailsF");
+        var bdy: string = `
+    <div>
+    <form class=\"border-info\">
+    <div class=\"form-group\">
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-id\" class=\"col-md-3\">ID:</label>
+      <input type=\"text\" class=\"form-control col-md-7\" id=\"patient-id\" value="` + field0 + `"></input>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-name\" class=\"col-md-3\">Name:</label>
+      <input class=\"form-control col-md-7\" id=\"patient-name\" value="` + field1 + `"></input>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-DOB\" class=\"col-md-3\">Date Of Birth:</label>
+      <input class=\"form-control col-md-7\" id=\"patient-DOB\" value="` + field2 + `"></input>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-DOS\" class=\"col-md-3\">Date of Service:</label>
+      <input class=\"form-control col-md-7\" id=\"patient-DOS\" value="` + field3 + `"></input>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-facility\" class=\"col-md-3\">Facility:</label>
+      <input class=\"form-control col-md-7\" id=\"patient-facility\" value="` + field4 + `"></input>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-comp\" class=\"col-md-3\">Chief Complaint:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-comp\">` + field5 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-HPI\" class=\"col-md-3\">HPI:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-HPI\">` + field6 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-IH\" class=\"col-md-3\">Interval History:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-IH\">` + field7 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-RS\" class=\"col-md-3\">Review Of Systems:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-RS\">` + field8 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-PMH\" class=\"col-md-3\">Past Medical History:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-PMH\">` + field9 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-Med\" class=\"col-md-3\">Medications:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-Med\">` + field10 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-PE\" class=\"col-md-3\">Physical Examination:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-PE\">` + field11 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-assmt\" class=\"col-md-3\">Assessment:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-assmt\">` + field12 + `</textarea>
+    </div>
+
+    <div class=\"row pt-2\">
+      <label for=\"patient-paln\" class=\"col-md-3\">Plan:</label>
+      <textarea rows=\"7\" class=\"form-control col-md-7\" id=\"patient-plan\">` + field13 + `</textarea>
+    </div>
+
+    </div>
+
+    </form>
+    <div class="row justify-content-center">
+      <button type=\"button\" class=\"btn btn-primary\">Save</button>
+    </div>
+    </div>
+    `;
+
+        pDetailsFbody.html(bdy);
+        var pdTab: any = $("#patientTabList li:eq(1) a");
+        pdTab.tab('show');
+
+      });
+    });
+  }
+
   loadPatientList(): void {
-    // var patient_list2 = [
-    //   {
-    //     "ID": 1,
-    //     "Patient Name": "Koetscha, Bernard",
-    //     "Date of Birth": "8/14/1947",
-    //     "Date of Service": "11/18/2019",
-    //     "Facility": "Chamberlain Healthcare Manor"
-    //     , "Chief Complaint": "1Neuromuscular weakness and ADL dysfunction secondary to the presence of left artificial hip joint."
-    //     , "HPI": "1The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going pretty good."
-    //   },
-    //   {
-    //     "ID": 2,
-    //     "Patient Name": "Sherbacka, Joyce",
-    //     "Date of Birth": "10/26/1943",
-    //     "Date of Service": "11/18/2019",
-    //     "Facility": "Chamberlain Healthcare Manor"
-    //     , "Chief Complaint": "2Neuromuscular weakness and ADL dysfunction secondary to the presence of left artificial hip joint."
-    //     , "HPI": "2The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going pretty good."
-    //   },
-    //   {
-    //     "ID": 3,
-    //     "Patient Name": "Chittema, Theresa M.",
-    //     "Date of Birth": "6/24/1948",
-    //     "Date of Service": "11/18/2019",
-    //     "Facility": "Chamberlain Healthcare Manor"
-    //     , "Chief Complaint": "3Neuromuscular weakness and ADL dysfunction secondary to the presence of left artificial hip joint."
-    //     , "HPI": "3The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going pretty good."
-    //   }
-    // ];
 
     var patient_list = [
       {
@@ -1831,292 +1972,7 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
       // });
     });
   }
-  loadPatientList_tab2(): void {
-    // var patient_list2 = [
-    //   {
-    //     "ID": 1,
-    //     "Patient Name": "Koetscha, Bernard",
-    //     "Date of Birth": "8/14/1947",
-    //     "Date of Service": "11/18/2019",
-    //     "Facility": "Chamberlain Healthcare Manor"
-    //     , "Chief Complaint": "1Neuromuscular weakness and ADL dysfunction secondary to the presence of left artificial hip joint."
-    //     , "HPI": "1The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going pretty good."
-    //   },
-    //   {
-    //     "ID": 2,
-    //     "Patient Name": "Sherbacka, Joyce",
-    //     "Date of Birth": "10/26/1943",
-    //     "Date of Service": "11/18/2019",
-    //     "Facility": "Chamberlain Healthcare Manor"
-    //     , "Chief Complaint": "2Neuromuscular weakness and ADL dysfunction secondary to the presence of left artificial hip joint."
-    //     , "HPI": "2The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going pretty good."
-    //   },
-    //   {
-    //     "ID": 3,
-    //     "Patient Name": "Chittema, Theresa M.",
-    //     "Date of Birth": "6/24/1948",
-    //     "Date of Service": "11/18/2019",
-    //     "Facility": "Chamberlain Healthcare Manor"
-    //     , "Chief Complaint": "3Neuromuscular weakness and ADL dysfunction secondary to the presence of left artificial hip joint."
-    //     , "HPI": "3The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going pretty good."
-    //   }
-    // ];
 
-    var patient_list = [
-      {
-        "ID": 1,
-        "Patient Name": "Koetscha, Bernard",
-        "Date of Birth": "8/14/1947",
-        "Date of Service": "11/18/2019",
-        "Facility": "Chamberlain Healthcare Manor",
-        "Chief Complaint": "Neuromuscular weakness and ADL dysfunction secondary to the presence of left artificial hip joint.",
-        "HPI": "The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going pretty good.",
-        "Interval History": "The patient is tolerating therapies but continues to have declined in function/weakness. Continues to work with therapy team to regain to prior level of function and independence for safe discharge.  PM&R to continue to monitor progress and evaluate for further rehabilitation needs and recommendations.",
-        "Review Of Systems": "(Gained from chart review, interview of patient and (or) family and discussion with staff): As per HPI above. Otherwise, 12 systems were reviewed and were negative",
-        "Past Medical History": "BPH, bipolar, hypercholesteremia, benign essential tremor, CVA, PVD, depression, Afib, CAD, MI s/p stents, arthritis, s/p R THR.",
-        "Medications": "As per MAR (reviewed pertinent medications today)",
-        "Physical Examination": "Vital Signs: VSS-R\nGeneral Appearance: NAD, well-groomed\nHEENT: Normocephalic, EOMI, supple neck, post pharynx normal\nRespiratory: Unlabored, no cough \nCardiovascular: RRR, S1/S2\nPsychological: Alert, and cooperative\nGI: +bowel sounds, S/NT/ND\nComprehensive MSK (Skeletal): The patient has decreased ROM in the LLE at the hip secondary to joint replacement, both passive and active. Right is intact in full ROM. Muscle tone and sensation are intact. No LE edema. Proprioception is intact. Has abnormal gait during ambulation. Has 3/5 strength of LE and 4/5 strength of UE.\nNeurological: CN 7 and CN 11 checked and intact.\nReflexes: 2+ and symmetrical in bilateral upper and lower extremities\nSkin: No heel ulcers\nExt: No edema, no calf tenderness, pedal pulses present",
-        "Assessment": "1. R53.81 ADL and mobility dysfunction\n2. M62.81 Neuromuscular weakness and de-conditioning\n3. R26.81 Gait Instability\n4. Z96.642 Presence of left artificial hip joint\n1. R53.81 ADL and mobility dysfunction\n2. M62.81 Neuromuscular weakness and de-conditioning\n3. R26.81 Gait Instability\n4. Z96.642 Presence of left artificial hip joint\n1. R53.81 ADL and mobility dysfunction\n2. M62.81 Neuromuscular weakness and de-conditioning\n3. R26.81 Gait Instability\n4. Z96.642 Presence of left artificial hip joint",
-        "Plan": "1. Medical necessity for rehabilitation: Continues to have declined in function/weakness. Continue working on quad sets, ankle pumps and transfers.\n2. Current level of function: Amb 15'x2, 40', 60' with CGA and RW; sit/stand with vc's for hand placements from elevated surfaces; \n3. Care team coordination: Discussed with therapy team; continue therapy per orders\n4. Follow-up: Physiatry will follow-up and reassess patient in 2-5 days and/or more frequently as needed as deemed per primary team/rehabilitation team/nursing.  Goal of follow-up visits will be to reassess any decline in function, review therapy evaluations and notes, diagnose any current/new/or potential barriers to rehabilitation, and maintain appropriateness of patient’s progression in therapies. Barriers to rehabilitation may prevent a safe and timely discharge of patient; and goal of Physiatry oversight is to maintain safe and timely discharge of patient’s overall admission in nursing facility setting to discharge setting.  During follow-up visits, Physiatry will re-order certifications for continued therapies."
-      },
-      {
-        "ID": 2,
-        "Patient Name": "Sherbacka, Joyce",
-        "Date of Birth": "10/26/1943",
-        "Date of Service": "11/18/2019",
-        "Facility": "Chamberlain Healthcare Manor",
-        "Chief Complaint": "Neuromuscular weakness and ADL dysfunction secondary to unspecified subluxation of right hip, subsequent encounter, unspecified injury of right hip, subsequent encounter",
-        "HPI": "The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going well.",
-        "Interval History": "The patient is tolerating therapies but continues to have declined in function/weakness, difficulty walking. Continues to work with therapy team to regain to prior level of function and independence for safe discharge.  PM&R to continue to monitor progress and evaluate for further rehabilitation needs and recommendations.",
-        "Review Of Systems": "(Gained from chart review, interview of patient and (or) family and discussion with staff): As per HPI above. Otherwise, 12 systems were reviewed and were negative.",
-        "Past Medical History": "Cystocele, glaucoma, HTN, hx chemotherapy, active smoker, \" mild mental retardation\", left breast Ca, hydronephrosis, closed nondisplaced fx of shaft of left clavicle, wrist fx, cataract extraction w/intraocular lens implant, simple mastectomy, sentinel lymph node biopsy, eye surgery, US-guided breast biopsy, lymph node dissection/axillary node dissection.",
-        "Medications": "As per MAR (reviewed pertinent medications today)",
-        "Physical Examination": "Vital Signs: VSS-R\nGeneral Appearance: NAD, well-groomed\nHEENT: Normocephalic, EOMI, supple neck, post pharynx normal\nRespiratory: Unlabored, no cough\nCardiovascular: RRR, S1/S2\nPsychological: Alert, and cooperative\nGI: +bowel sounds, S/NT/ND\nComprehensive MSK (Skeletal): The patient has decreased ROM of the right hip secondary to dislocation. Flexion and extension, adduction and abduction. Has abnormal gait during ambulation. Has 3/5 strength of LE and 3/5 strength of UE. No LE edema.\nNeurological: CN 7 and CN 11 checked and intact.\nReflexes: 2+ and symmetrical in bilateral upper and lower extremities\nSkin: No heel ulcers\nExt: No edema, no calf tenderness, pedal pulses present",
-        "Assessment": "1. R53.81 ADL and mobility dysfunction\n2. M62.81 Neuromuscular weakness and de-conditioning\n3. R26.81 Gait Instability\n4. S73.001D Unspecified subluxation of right hip, subsequent encounter5. S79.911D Unspecified injury of right hip, subsequent encounter",
-        "Plan": "1. Medical necessity for rehabilitation: Continues to have declined in function/weakness, difficulty walking. Continue working on ankle pumps, transfers and quad sets.\n2. Current level of function: No rehab updates\n3. Care team coordination: Discussed with therapy team; continue therapy per orders\n4. Follow-up: Physiatry will follow-up and reassess patient in 2-5 days and/or more frequently as needed as deemed per primary team/rehabilitation team/nursing.  Goal of follow-up visits will be to reassess any decline in function, review therapy evaluations and notes, diagnose any current/new/or potential barriers to rehabilitation, and maintain appropriateness of patient’s progression in therapies. Barriers to rehabilitation may prevent a safe and timely discharge of patient; and goal of Physiatry oversight is to maintain safe and timely discharge of patient’s overall admission in nursing facility setting to discharge setting.  During follow-up visits, Physiatry will re-order certifications for continued therapies."
-      },
-      {
-        "ID": 3,
-        "Patient Name": "Chittema, Theresa M.",
-        "Date of Birth": "6/24/1948",
-        "Date of Service": "11/18/2019",
-        "Facility": "Chamberlain Healthcare Manor",
-        "Chief Complaint": "Neuromuscular weakness and ADL dysfunction secondary to chronic obstructive pulmonary disease with (acute) exacerbation and acute and chronic respiratory failure with hypoxia.",
-        "HPI": "The patient was seen and examined today. \n\nThe patient states that physical therapy seems to be going well.",
-        "Interval History": "The patient is tolerating therapies but continues to have declined in function/weakness, respiratory decline. Continues to work with therapy team to regain to prior level of function and independence for safe discharge.  PM&R to continue to monitor progress and evaluate for further rehabilitation needs and recommendations.",
-        "Review Of Systems": "(Gained from chart review, interview of patient and (or) family and discussion with staff): As per HPI above. Otherwise, 12 systems were reviewed and were negative.",
-        "Past Medical History": "COPD exacerbation, acute respiratory failure, HTN, hypothyroidism, pre-DM, hypoxemia, and dyspnea",
-        "Medications": "As per MAR (reviewed pertinent medications today)",
-        "Physical Examination": "Vital Signs: VSS-R\nGeneral Appearance: NAD, well-groomed\nHEENT: Normocephalic, EOMI, supple neck, post pharynx normal\nRespiratory: Unlabored, no cough \nCardiovascular: RRR, S1/S2\nPsychological: Alert, and cooperative\nGI: +bowel sounds, S/NT/ND\nComprehensive MSK (Skeletal): The patient is wearing oxygen. He is barrel-chested. He is kyphotic. He has clubbing of the fingernails. Has muscle atrophy of U/LE. Sensation is intact. Has decreased proprioception in the LE. 3/5 strength of LE and 3/5 strength of UE. Has abnormal gait during ambulation.\nNeurological: CN 7 and CN 11 checked and intact.\nReflexes: 2+ and symmetrical in bilateral upper and lower extremities\nSkin: No heel ulcers\nExt: No edema, no calf tenderness, pedal pulses present",
-        "Assessment": "1. R53.81 ADL and mobility dysfunction\n2. M62.81 Neuromuscular weakness and de-conditioning\n3. R26.81 Gait Instability\n4. J44.1 Chronic obstructive pulmonary disease with (acute) exacerbation\n5. J96.21 Acute and chronic respiratory failure with hypoxia",
-        "Plan": "1. Medical necessity for rehabilitation: Continues to have declined in function/weakness, respiratory decline. Continue working on endurance activities, gait pattern and seated therapy exercises.\n2. Current level of function: BLE ther ex seated without weight 2 x 10 to improve strength and activity tolerance for functional mobility; Cl(S) transfers , req (A) with O2 tubing mgmt\n3. Care team coordination: Discussed with therapy team; continue therapy per orders\n4. Follow-up: Physiatry will follow-up and reassess patient in 2-5 days and/or more frequently as needed as deemed per primary team/rehabilitation team/nursing.  Goal of follow-up visits will be to reassess any decline in function, review therapy evaluations and notes, diagnose any current/new/or potential barriers to rehabilitation, and maintain appropriateness of patient’s progression in therapies. Barriers to rehabilitation may prevent a safe and timely discharge of patient; and goal of Physiatry oversight is to maintain safe and timely discharge of patient’s overall admission in nursing facility setting to discharge setting.  During follow-up visits, Physiatry will re-order certifications for continued therapies."
-      }
-    ];
-
-    $(document).ready(function() {
-      $('#bs-example').DataTable({
-        "data": patient_list,
-        "columns": [
-          { "data": "ID" },
-          { "data": "Patient Name" },
-          { "data": "Date of Birth" },
-          { "data": "Date of Service" },
-          { "data": "Facility" },
-          // ,{ "data": "Chief Complaint" },
-          // { "data": "HPI" },
-          // { "data": "Interval History" },
-          // { "data": "Review Of Systems" },
-          // { "data": "Past Medical History" },
-          // { "data": "Medications" },
-          // { "data": "Physical Examination" },
-          // { "data": "Assessment" },
-          // { "data": "Plan" },
-          {
-            "data": function(ID: any) {
-              // return "<a href=Test</a>";
-              return "<button type=\"button\" class=\"btn btn-primary btn-xs dt-edit\" style=\"margin-right:16px; fontSize=\"12px\";\"> <span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\">Details</span>";
-            }
-          }
-        ]
-      });
-
-      $('.dt-edit').each(function() {
-        $(this).on('click', function(evt) {
-          // $('.dt-edit').each(() => {
-          //   $(this).on('click', (evt) => {
-          //var msg: string = '';
-          //$(this).parent().parent().children()[1].innerText //<td>Airi Satou</td>
-          //$(this).parents('tr').children()[1].innerText
-          //$(this).parents('tr')[0].cells[1].innerText
-
-          var dtRow = $(this).parents('tr');
-
-
-          //alert('You clicked on ' + dtRow.children()[1].innerText);
-          var field0 = dtRow.children()[0].innerText;
-          var field1 = dtRow.children()[1].innerText;
-          var field2 = dtRow.children()[2].innerText;
-          var field3 = dtRow.children()[3].innerText;
-          var field4 = dtRow.children()[4].innerText;
-          // var field5 = dtRow.children()[5].innerText;
-          // var field6 = dtRow.children()[6].innerText;
-          document.getElementById('name-plate').innerHTML = field1;
-
-          // var pd = this.loadPatientDetails(Number(field0));
-          // alert(pd.toString());
-          var field5: string = '';
-          var field6: string = '';
-          var field7: string = '';
-          var field8: string = '';
-          var field9: string = '';
-          var field10: string = '';
-          var field11: string = '';
-          var field12: string = '';
-          var field13: string = '';
-
-          for (var i = 0; i < patient_list.length; i++) {
-            if (patient_list[i].ID == Number(field0)) {
-              field5 = patient_list[i]["Chief Complaint"];
-              field6 = patient_list[i]["HPI"];
-              field7 = patient_list[i]["Interval History"];
-              field8 = patient_list[i]["Review Of Systems"];
-              field9 = patient_list[i]["Past Medical History"];
-              field10 = patient_list[i]["Medications"];
-              field11 = patient_list[i]["Physical Examination"];
-              field12 = patient_list[i]["Assessment"];
-              field13 = patient_list[i]["Plan"];
-            }
-
-          };
-
-
-          var pDetailsFbody: any = $("#pDetailsF");
-          //mdlbody.html('<p>Test</p>');
-          var bdy: string = `
-          <form class=\"border-info\">
-          <div class=\"form-group\">
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-id\" class=\"col-md-4\">ID:</label>
-            <input type=\"text\" class=\"form-control col-md-6\" id=\"patient-id\" value="` + field0 + `"></input>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-name\" class=\"col-md-4\">Name:</label>
-            <input class=\"form-control col-md-6\" id=\"patient-name\" value="` + field1 + `"></input>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-DOB\" class=\"col-md-4\">Date Of Birth:</label>
-            <input class=\"form-control col-md-6\" id=\"patient-DOB\" value="` + field2 + `"></input>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-DOS\" class=\"col-md-4\">Date of Service:</label>
-            <input class=\"form-control col-md-6\" id=\"patient-DOS\" value="` + field3 + `"></input>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-facility\" class=\"col-md-4\">Facility:</label>
-            <input class=\"form-control col-md-6\" id=\"patient-facility\" value="` + field4 + `"></input>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-comp\" class=\"col-md-4\">Chief Complaint:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-comp\">` + field5 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-HPI\" class=\"col-md-4\">HPI:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-HPI\">` + field6 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-IH\" class=\"col-md-4\">Interval History:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-IH\">` + field7 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-RS\" class=\"col-md-4\">Review Of Systems:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-RS\">` + field8 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-PMH\" class=\"col-md-4\">Past Medical History:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-PMH\">` + field9 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-Med\" class=\"col-md-4\">Medications:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-Med\">` + field10 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-PE\" class=\"col-md-4\">Physical Examination:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-PE\">` + field11 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-assmt\" class=\"col-md-4\">Assessment:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-assmt\">` + field12 + `</textarea>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-paln\" class=\"col-md-4\">Plan:</label>
-            <textarea rows=\"7\" class=\"form-control col-md-6\" id=\"patient-plan\">` + field13 + `</textarea>
-          </div>
-
-          </div>
-
-          </form>
-          `;
-
-          // var bdy: string = `
-          // <form>
-          // <div class=\"form-group\">
-          //   <label for=\"patient-id\" class=\"col-form-label\">ID:</label>
-          //   <input type=\"text\" class=\"form-control\" id=\"patient-id\" value="` + field0 + `"></input>
-          // </div>
-          // <div class=\"form-group\">
-          //   <label for=\"patient-name\" class=\"col-form-label\">Name:</label>
-          //   <input class=\"form-control\" id=\"patient-name\" value="` + field1 + `"></input>
-          // </div>
-          // </form>
-          // `;
-
-
-          pDetailsFbody.html(bdy);
-          var pdTab: any = $("#patientTabList li:eq(1) a");
-          pdTab.tab('show');
-
-          //$("#patientTabList li:eq(1) a").tab('show');
-
-          //tabsList.tabs("option","active", $("#pDetails").index());
-          //tabsList.tab('show');
-          //tabsList.addClass('active');
-          //tab.next().addClass('active');
-
-          // var tab = $(this).closest('.tab-pane');
-          // $('#' + tab[0].id + ', .nav-pills li').removeClass('active');
-          // $('.nav-pills li a[href="#' + tab.next()[0].id + '"]').parent().addClass('active');
-          // tab.next().addClass('active');
-
-
-
-        });
-      });
-      // $(function(){
-      //     $('#myForm').on('submit', function(e){
-      //       e.preventDefault();
-      //       $.post('http://www.somewhere.com/path/to/post',
-      //          $('#myForm').serialize(),
-      //          function(data, status, xhr){
-      //            // do something here with response;
-      //          });
-      //     });
-      // });
-    });
-  }
   loadPatientDetails(id: number): object {
     var patient_Details = [
       {
@@ -2176,260 +2032,20 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
     };
 
   }
-  loadPatientList_working(): void {
-    var patient_list = [{
-      "ID": 1,
-      "Name": "Airi Satou",
-      "Position": "Accountant",
-      "Office": "Tokyo",
-      "Age": 33,
-      "Start date": "11/28/08",
-      "Salary": "$162,700"
-    },
-    {
-      "ID": 2,
-      "Name": "Angelica Ramos",
-      "Position": "Chief Executive Officer (CEO)",
-      "Office": "London",
-      "Age": 47,
-      "Start date": "10/9/09",
-      "Salary": "$1,200,000"
-    },
-    {
-      "ID": 3,
-      "Name": "Zorita Serrano",
-      "Position": "Software Engineer",
-      "Office": "San Francisco",
-      "Age": 56,
-      "Start date": "6/1/12",
-      "Salary": "$115,000"
+
+  //async joinMeeting(): Promise<any> {
+  async getAllPatients(): Promise<any> {
+    const response = await fetch(
+      `${eTreatApp.BASE_URL}getAllPatients`);
+    const json = await response.json();
+
+    console.log("response= " + JSON.stringify(json));
+    if (json.error) {
+      throw new Error(`Server error: ${json.error}`);
     }
-    ];
-
-    $(document).ready(function() {
-      $('#bs-example').DataTable({
-        "data": patient_list,
-        "columns": [
-          { "data": "ID" },
-          { "data": "Name" },
-          { "data": "Position" },
-          { "data": "Office" },
-          { "data": "Age" },
-          { "data": "Start date" },
-          { "data": "Salary" },
-          // { "data": <button type="button" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"> <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> }
-          {
-            "data": function(ID: any) {
-              // return "<a href=Test</a>";
-              return "<button type=\"button\" class=\"btn btn-primary btn-xs dt-edit\" style=\"margin-right:16px; fontSize=\"12px\";\"> <span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\">Edit</span>";
-            }
-          }
-        ]
-      });
-
-      $('.dt-edit').each(function() {
-        $(this).on('click', function(evt) {
-          //var msg: string = '';
-          //$(this).parent().parent().children()[1].innerText //<td>Airi Satou</td>
-          //$(this).parents('tr').children()[1].innerText
-          //$(this).parents('tr')[0].cells[1].innerText
-
-          var dtRow = $(this).parents('tr');
-
-          //alert('You clicked on ' + dtRow.children()[1].innerText);
-          var field0 = dtRow.children()[0].innerText;
-          var field1 = dtRow.children()[1].innerText;
-          // var field2 = dtRow.children()[2].innerText;
-          // var field3 = dtRow.children()[3].innerText;
-          // var field4 = dtRow.children()[4].innerText;
-          // var field5 = dtRow.children()[5].innerText;
-          // var field6 = dtRow.children()[6].innerText;
-
-          var pDetailsFbody: any = $("#pDetailsF");
-          //mdlbody.html('<p>Test</p>');
-          var bdy: string = `
-            <form class=\"border-info\">
-            <div class=\"form-group\">
-            <div class=\"row pt-2\">
-              <label for=\"patient-id\" class=\"col-md-2\">ID:</label>
-              <input type=\"text\" class=\"form-control col-md-6\" id=\"patient-id\" value="` + field0 + `"></input>
-            </div>
-
-            <div class=\"row pt-2\">
-              <label for=\"patient-name\" class=\"col-md-2\">Name:</label>
-              <input class=\"form-control col-md-6\" id=\"patient-name\" value="` + field1 + `"></input>
-            </div>
-            </div>
-
-            </form>
-            `;
-
-          // var bdy: string = `
-          // <form>
-          // <div class=\"form-group\">
-          //   <label for=\"patient-id\" class=\"col-form-label\">ID:</label>
-          //   <input type=\"text\" class=\"form-control\" id=\"patient-id\" value="` + field0 + `"></input>
-          // </div>
-          // <div class=\"form-group\">
-          //   <label for=\"patient-name\" class=\"col-form-label\">Name:</label>
-          //   <input class=\"form-control\" id=\"patient-name\" value="` + field1 + `"></input>
-          // </div>
-          // </form>
-          // `;
-
-
-          pDetailsFbody.html(bdy);
-          var pdTab: any = $("#patientTabList li:eq(1) a");
-          pdTab.tab('show');
-
-          //$("#patientTabList li:eq(1) a").tab('show');
-
-          //tabsList.tabs("option","active", $("#pDetails").index());
-          //tabsList.tab('show');
-          //tabsList.addClass('active');
-          //tab.next().addClass('active');
-
-          // var tab = $(this).closest('.tab-pane');
-          // $('#' + tab[0].id + ', .nav-pills li').removeClass('active');
-          // $('.nav-pills li a[href="#' + tab.next()[0].id + '"]').parent().addClass('active');
-          // tab.next().addClass('active');
-
-
-
-        });
-      });
-      // $(function(){
-      //     $('#myForm').on('submit', function(e){
-      //       e.preventDefault();
-      //       $.post('http://www.somewhere.com/path/to/post',
-      //          $('#myForm').serialize(),
-      //          function(data, status, xhr){
-      //            // do something here with response;
-      //          });
-      //     });
-      // });
-    });
+    return json;
   }
-  loadPatientList_working_old(): void {
-    var patient_list = [{
-      "ID": 1,
-      "Name": "Airi Satou",
-      "Position": "Accountant",
-      "Office": "Tokyo",
-      "Age": 33,
-      "Start date": "11/28/08",
-      "Salary": "$162,700"
-    },
-    {
-      "ID": 2,
-      "Name": "Angelica Ramos",
-      "Position": "Chief Executive Officer (CEO)",
-      "Office": "London",
-      "Age": 47,
-      "Start date": "10/9/09",
-      "Salary": "$1,200,000"
-    },
-    {
-      "ID": 3,
-      "Name": "Zorita Serrano",
-      "Position": "Software Engineer",
-      "Office": "San Francisco",
-      "Age": 56,
-      "Start date": "6/1/12",
-      "Salary": "$115,000"
-    }
-    ];
 
-    $(document).ready(function() {
-      $('#bs-example').DataTable({
-        "data": patient_list,
-        "columns": [
-          { "data": "ID" },
-          { "data": "Name" },
-          { "data": "Position" },
-          { "data": "Office" },
-          { "data": "Age" },
-          { "data": "Start date" },
-          { "data": "Salary" },
-          // { "data": <button type="button" class="btn btn-primary btn-xs dt-edit" style="margin-right:16px;"> <span class="glyphicon glyphicon-pencil" aria-hidden="true"></span> }
-          {
-            "data": function(ID: any) {
-              // return "<a href=Test</a>";
-              return "<button type=\"button\" class=\"btn btn-primary btn-xs dt-edit\" style=\"margin-right:16px; fontSize=\"12px\";\"> <span class=\"glyphicon glyphicon-pencil\" aria-hidden=\"true\">Edit</span>";
-            }
-          }
-        ]
-      });
-
-      $('.dt-edit').each(function() {
-        $(this).on('click', function(evt) {
-          //var msg: string = '';
-          //$(this).parent().parent().children()[1].innerText //<td>Airi Satou</td>
-          //$(this).parents('tr').children()[1].innerText
-          //$(this).parents('tr')[0].cells[1].innerText
-
-          var dtRow = $(this).parents('tr');
-
-          //alert('You clicked on ' + dtRow.children()[1].innerText);
-          var field0 = dtRow.children()[0].innerText;
-          var field1 = dtRow.children()[1].innerText;
-          // var field2 = dtRow.children()[2].innerText;
-          // var field3 = dtRow.children()[3].innerText;
-          // var field4 = dtRow.children()[4].innerText;
-          // var field5 = dtRow.children()[5].innerText;
-          // var field6 = dtRow.children()[6].innerText;
-
-          var mdlbody: any = $('div.modal-body');
-          //mdlbody.html('<p>Test</p>');
-          var bdy: string = `
-          <form>
-          <div class=\"form-group\">
-          <div class=\"row pt-2\">
-            <label for=\"patient-id\" class=\"col-md-4\">ID:</label>
-            <input type=\"text\" class=\"form-control col-md-6\" id=\"patient-id\" value="` + field0 + `"></input>
-          </div>
-
-          <div class=\"row pt-2\">
-            <label for=\"patient-name\" class=\"col-md-4\">Name:</label>
-            <input class=\"form-control col-md-6\" id=\"patient-name\" value="` + field1 + `"></input>
-          </div>
-          </div>
-
-          </form>
-          `;
-
-          // var bdy: string = `
-          // <form>
-          // <div class=\"form-group\">
-          //   <label for=\"patient-id\" class=\"col-form-label\">ID:</label>
-          //   <input type=\"text\" class=\"form-control\" id=\"patient-id\" value="` + field0 + `"></input>
-          // </div>
-          // <div class=\"form-group\">
-          //   <label for=\"patient-name\" class=\"col-form-label\">Name:</label>
-          //   <input class=\"form-control\" id=\"patient-name\" value="` + field1 + `"></input>
-          // </div>
-          // </form>
-          // `;
-
-
-          mdlbody.html(bdy);
-          var mdl: any = $('#myModal');
-          mdl.modal('show');
-
-        });
-      });
-      // $(function(){
-      //     $('#myForm').on('submit', function(e){
-      //       e.preventDefault();
-      //       $.post('http://www.somewhere.com/path/to/post',
-      //          $('#myForm').serialize(),
-      //          function(data, status, xhr){
-      //            // do something here with response;
-      //          });
-      //     });
-      // });
-    });
-  }
   popUpModal(): void {
   }
 
