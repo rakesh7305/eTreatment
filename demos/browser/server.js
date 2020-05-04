@@ -14,10 +14,10 @@ const mysql = require('mysql');
 
 var pool = mysql.createPool({
   connectionLimit: 100, //important
-  host: 'localhost',
+  host: '0.0.0.0',
   user: 'root',
   password: 'admin123',
-  database: 'labs',
+  database: 'etreat',
   debug: false
 });
 
@@ -147,8 +147,8 @@ const server = require(protocol).createServer(options, async (request, response)
       response.statusCode = 201;
       response.setHeader('Content-Type', 'application/json');
       search_all(request, response);
-			//mysql.search_all(request, response);
-			//test(request, response);
+	//mysql.search_all(request, response);
+	//test(request, response);
       //response.end();
       log("response sent")
 
@@ -187,7 +187,9 @@ function search_all(req, res) {
     }
     console.log('connected as id ' + connection.threadId);
 
-    connection.query("SELECT s.id_patient ID, concat(p.last_name, ', ', p.first_name) 'Patient Name', DATE_FORMAT(p.birth_date, \"%Y-%m-%d\") 'Date of Birth', DATE_FORMAT(service_date, \"%Y-%m-%d\") 'Date of Service', f.name Facility, chief_complaint 'Chief Complaint', HPI, interval_history 'Interval History', review_of_systems 'Review Of System', medical_history 'Past Medical History', medication 'Medications', physical_examination 'Physical Examination', assessment 'Assessment', plan Plan FROM etreat.service as s ,etreat.Patient as p , etreat.facility as f where s.id_patient = p.id_patient and s.id_facility = f.id", function(err, rows) {
+    connection.query("SELECT s.id_patient ID, concat(p.last_name, ', ', p.first_name) 'Patient Name', DATE_FORMAT(p.birth_date, \"%Y-%m-%d\") 'Date of Birth', DATE_FORMAT(service_date, \"%Y-%m-%d\") 'Date of Service', f.name Facility, chief_complaint 'Chief Complaint', HPI, interval_history 'Interval History', review_of_systems 'Review Of System', medical_history 'Past Medical History', medication 'Medications', physical_examination 'Physical Examination', assessment 'Assessment', plan Plan FROM etreat.Service as s ,etreat.Patient as p , etreat.facility as f where s.id_patient = p.id_patient and s.id_facility = f.id", function(err, rows) {
+    //connection.query("SELECT * FROM etreat.facility ", function(err, rows) {
+    //connection.query("SELECT * FROM etreat.Service ", function(err, rows) {
 
       console.log("before res = " + rows);
 
@@ -204,10 +206,11 @@ function search_all(req, res) {
       }
     });
     connection.on('error', function(err) {
-      res.json({
-        "code": 100,
-        "status": "Error in connection database"
-      });
+      //res.json({
+       // "code": 100,
+      //  "status": "Error in connection database"
+      //});
+        console.log("Error = " + err);
       return;
     });
   });

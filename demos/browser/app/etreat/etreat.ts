@@ -169,10 +169,10 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
   initParameters(): void {
     const meeting = new URL(window.location.href).searchParams.get('m');
     if (meeting) {
-      (document.getElementById('inputMeeting') as HTMLInputElement).value = meeting;
+      (document.getElementById('location') as HTMLInputElement).value = meeting;
       (document.getElementById('inputName') as HTMLInputElement).focus();
     } else {
-      (document.getElementById('inputMeeting') as HTMLInputElement).focus();
+      (document.getElementById('location') as HTMLInputElement).focus();
     }
   }
 
@@ -199,15 +199,15 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
           //document.getElementById('header').innerHTML = header_d;
 
           this.switchToFlow('flow-center-info');
-          document.getElementById('center-info').innerHTML = this.centerName;
-          //this.initParameters();
+          document.getElementById('center-info').innerHTML = this.meeting;
+          this.initParameters();
           this.loadPatientList_db();
           //this.setMeetingInfo();
           //this.startAudioPreview();
 
 
         } catch (error) {
-          console.log("login failed");
+          console.log("login failed: " + error);
           //document.getElementById('failed-join').innerHTML = `Meeting ID: ${this.meeting}`;
           //document.getElementById('failed-join-error').innerHTML = `Error: ${error.message}`;
         }
@@ -376,7 +376,9 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
     });
     document.getElementById('checkDeviceBtn').addEventListener('click', e => {
       e.preventDefault();
+
       this.setMeetingInfo();
+      this.setupDeviceLabelTrigger_my();
       this.startAudioPreview();
       (<HTMLInputElement>document.getElementById('checkDeviceBtn')).disabled = true;
 
@@ -603,9 +605,9 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
       e => ((e as HTMLDivElement).style.display = 'none')
     );
     (document.getElementById(flow) as HTMLDivElement).style.display = 'block';
-    if (flow === 'flow-devices') {
-      this.startAudioPreview();
-    }
+    //if (flow === 'flow-devices') {
+    //  this.startAudioPreview();
+    //}
   }
   readHtmlFile(file: string): string {
     var result = null;
@@ -632,15 +634,17 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
     new AsyncScheduler().start(
       async (): Promise<void> => {
         //this.showProgress('progress-authenticate');
+	console.log('rakesh  setMeetingInfo ');
         try {
           await this.authenticate();
         } catch (error) {
-          (document.getElementById(
-            'failed-meeting'
-          ) as HTMLDivElement).innerHTML = `Meeting ID: ${this.meeting}`;
-          (document.getElementById('failed-meeting-error') as HTMLDivElement).innerHTML =
-            error.message;
+          //(document.getElementById(
+          //  'failed-meeting'
+          //) as HTMLDivElement).innerHTML = `Meeting ID: ${this.meeting}`;
+          //(document.getElementById('failed-meeting-error') as HTMLDivElement).innerHTML =
+          //  error.message;
           //this.switchToFlow('flow-failed-meeting');
+	this.log(error);
           return;
         }
         // (document.getElementById(
@@ -774,9 +778,13 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
   async initializeMeetingSession(configuration: MeetingSessionConfiguration): Promise<void> {
     const logger = new ConsoleLogger('SDK', LogLevel.DEBUG);
     const deviceController = new DefaultDeviceController(logger);
+	console.log('rakesh initializeMeetingSession 1');
     configuration.enableWebAudio = this.enableWebAudio;
+	console.log('rakesh initializeMeetingSession 2');
     this.meetingSession = new DefaultMeetingSession(configuration, logger, deviceController);
+	console.log('rakesh initializeMeetingSession 3');
     this.audioVideo = this.meetingSession.audioVideo;
+	console.log('rakesh initializeMeetingSession 4');
 
     this.audioVideo.addDeviceChangeObserver(this);
     this.setupDeviceLabelTrigger();
@@ -985,9 +993,18 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
     // a custom UX with a specific device id.
     this.audioVideo.setDeviceLabelTrigger(
       async (): Promise<MediaStream> => {
-        this.switchToFlow('flow-need-permission');
+        //this.switchToFlow('flow-need-permission');
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-        this.switchToFlow('flow-devices');
+        this.switchToFlow('flow-center-info');
+        return stream;
+      }
+    );
+  }
+
+  setupDeviceLabelTrigger_my(): void {
+    this.audioVideo.setDeviceLabelTrigger(
+      async (): Promise<MediaStream> => {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
         return stream;
       }
     );
@@ -1264,6 +1281,7 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
 
   async authenticate(): Promise<void> {
     let joinInfo = (await this.joinMeeting()).JoinInfo;
+console.log('rakesh authenticate ');
     await this.initializeMeetingSession(
       new MeetingSessionConfiguration(joinInfo.Meeting, joinInfo.Attendee)
     );
@@ -1576,7 +1594,7 @@ export class eTreatApp implements AudioVideoObserver, DeviceChangeObserver {
   }
 
   setPatientListDetailBtns(patient_list: any): void {
-    alert("in setPatientList Buttons");
+    console.log('rakesh  setPatientList Buttons');
     $('.dt-edit').each(function() {
       $(this).on('click', function(evt) {
 
